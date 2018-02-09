@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <base href="https://mromanella-portfolio.appspot.com/projects/connect4/">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://use.fontawesome.com/591eaa7791.js"></script>
+    <title>Connect 4!</title>
+    <link rel="shortcut icon" href="favicon.JPG">
+</head>
+
+<body style="visibility:hidden">
+
+    <header id="banner" class="banner">
+        <a class="link-no-decoration banner-items" href="https://mromanella-portfolio.appspot.com/projects/connect4/">
+            <div class="logo typography">
+                Connect 4
+            </div>
+        </a>
+        <button class="open-sbbutton btn banner-items">
+            <!-- <i class=" fa fa-ellipsis-h" aria-hidden="true"></i> -->
+            Menu
+        </button>
+    </header>
+
+    <main>
+        <article class="main-content">
+            <div class="sidebar">
+                <button class="btn close-sidebar-btn typography">
+                    Close
+                </button>
+                <ul>
+                    <li>
+                        <button id="clear-button" class="btn clear-button typography">Clear Board</button>
+                    </li>
+                </ul>
+            </div>
+            <section id="board" class="board"></section>
+            <section id="current-turn" class="current-turn">
+                
+            </section>
+        </article>
+    </main>
+
+    <div id="screen-container"></div>
+    <div id="settings-screen-container"></div>
+</body>
+<script src="bundle.js"></script>
+
+</html>

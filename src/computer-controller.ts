@@ -30,7 +30,7 @@ export class ComputerController {
     decideMove() {
         let testBoard = new Board(document.createElement('div'), this.settings, true);
         testBoard.board = this.gameBoard.copyBoard();
-        let turn = this.difficulty;
+        let turn = this.difficulty * 8;
         let col = 0;
         let score = 0;
         while (turn > 0) {
@@ -135,7 +135,7 @@ export class ComputerController {
 
         // Choose a random
         if (maxScore === 0) {
-            max = Math.floor(Math.random() * max);
+            max = Math.floor(Math.random() * 4) + 2;
             while (this.gameBoard.getPossibleMove(max) === -1) {
                 max = Math.floor(Math.random() * 7);
             }

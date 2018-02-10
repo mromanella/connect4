@@ -30,7 +30,7 @@ export class ComputerController {
     decideMove() {
         let testBoard = new Board(document.createElement('div'), this.settings, true);
         testBoard.board = this.gameBoard.copyBoard();
-        let turn = this.difficulty * 10;
+        let turn = this.difficulty;
         let col = 0;
         let score = 0;
         while (turn > 0) {
@@ -42,7 +42,10 @@ export class ComputerController {
             }
 
             let row = testBoard.getPossibleMove(col)
-            testBoard.board[row][col].setPieceColor(this.color);
+            if (testBoard) {
+                testBoard.board[row][col].setPieceColor(this.color);
+
+            }
             turn--;
         }
         // console.log(col, score);
@@ -132,7 +135,7 @@ export class ComputerController {
 
         // Choose a random
         if (maxScore === 0) {
-            max = Math.floor(Math.random() * 7);
+            max = Math.floor(Math.random() * max);
             while (this.gameBoard.getPossibleMove(max) === -1) {
                 max = Math.floor(Math.random() * 7);
             }

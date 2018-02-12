@@ -1,6 +1,7 @@
 export interface WinCheckResults {
     win: boolean;
     run: PlayerPiece[];
+    col: number;
 }
 
 export default class PlayerPiece {
@@ -108,7 +109,7 @@ export default class PlayerPiece {
                 return winCheckResults;
             }
         }
-        return { win: false, run: [] };
+        return { win: false, run: [], col: this.col };
     }
 
     displayWinAnimation() {
@@ -139,13 +140,16 @@ export default class PlayerPiece {
         let i = this.col - 1;
         while (i >= this.col - 3) {
             let checkCol = i;
-            if (checkCol < 0 || checkCol > 6) {
+
+            if (checkCol < 0) {
+                checkCol = Math.abs(this.col + i);
+                if (checkSet.indexOf(this.parentBoard[this.row][checkCol]) === -1) {
+                    checkSet.unshift(this.parentBoard[this.row][checkCol]);
+                }
                 i--;
                 continue;
             }
-            // if (checkRow < 0 && (this.row + Math.abs(k) <= 5)) {
-            //     checkRow = this.col + Math.abs(k);
-            // }
+
             if (checkSet.indexOf(this.parentBoard[this.row][checkCol]) === -1) {
                 checkSet.unshift(this.parentBoard[this.row][checkCol]);
             }
@@ -153,13 +157,18 @@ export default class PlayerPiece {
         }
 
         i = this.col + 1;
-        // Check bottom right
+        // Check right
         while (i <= this.col + 3) {
             let checkCol = i;
-            if (checkCol < 0 || checkCol > 6) {
+            if (checkCol > 6) {
+                checkCol = i - this.col;
+                if (checkSet.indexOf(this.parentBoard[this.row][checkCol]) === -1) {
+                    checkSet.unshift(this.parentBoard[this.row][checkCol]);
+                }
                 i++;
                 continue;
             }
+
             if (checkSet.indexOf(this.parentBoard[this.row][checkCol]) === -1) {
                 checkSet.push(this.parentBoard[this.row][checkCol]);
             }
@@ -186,7 +195,6 @@ export default class PlayerPiece {
             }
         }
 
-        console.log(checkSet);
         return this.checkSetForWin(checkSet);
     }
 
@@ -258,47 +266,47 @@ export default class PlayerPiece {
     }
 
     checkDiagonalRight(): WinCheckResults {
-            let checkSet: PlayerPiece[] = [this];
-            // Check left
-            let i = this.col + 1;
-            let k = this.row - 1;
-            while (i <= this.col + 3) {
-                let checkCol = i;
-                let checkRow = k;
-                if (checkCol < 0 || checkCol > 6 || checkRow < 0 || checkRow > 5) {
-                    k--;
-                    i++;
-                    continue;
-                }
-                // if (checkRow < 0 && (this.row + Math.abs(k) <= 5)) {
-                //     checkRow = this.col + Math.abs(k);
-                // }
-                if (checkSet.indexOf(this.parentBoard[checkRow][checkCol]) === -1) {
-                    checkSet.push(this.parentBoard[checkRow][checkCol]);
-                }
+        let checkSet: PlayerPiece[] = [this];
+        // Check left
+        let i = this.col + 1;
+        let k = this.row - 1;
+        while (i <= this.col + 3) {
+            let checkCol = i;
+            let checkRow = k;
+            if (checkCol < 0 || checkCol > 6 || checkRow < 0 || checkRow > 5) {
                 k--;
                 i++;
+                continue;
             }
-    
-            i = this.col - 1;
-            k = this.row + 1;
-            // Check bottom left
-            while (i >= this.col - 3) {
-                let checkCol = i;
-                let checkRow = k;
-                if (checkCol < 0 || checkCol > 6 || checkRow < 0 || checkRow > 5) {
-                    k++;
-                    i--;
-                    continue;
-                }
-                if (checkSet.indexOf(this.parentBoard[checkRow][checkCol]) === -1) {
-                    checkSet.unshift(this.parentBoard[checkRow][checkCol]);
-                }
+            // if (checkRow < 0 && (this.row + Math.abs(k) <= 5)) {
+            //     checkRow = this.col + Math.abs(k);
+            // }
+            if (checkSet.indexOf(this.parentBoard[checkRow][checkCol]) === -1) {
+                checkSet.push(this.parentBoard[checkRow][checkCol]);
+            }
+            k--;
+            i++;
+        }
+
+        i = this.col - 1;
+        k = this.row + 1;
+        // Check bottom left
+        while (i >= this.col - 3) {
+            let checkCol = i;
+            let checkRow = k;
+            if (checkCol < 0 || checkCol > 6 || checkRow < 0 || checkRow > 5) {
                 k++;
                 i--;
+                continue;
             }
-    
-            return this.checkSetForWin(checkSet);
+            if (checkSet.indexOf(this.parentBoard[checkRow][checkCol]) === -1) {
+                checkSet.unshift(this.parentBoard[checkRow][checkCol]);
+            }
+            k++;
+            i--;
+        }
+
+        return this.checkSetForWin(checkSet);
     }
 
 
@@ -363,15 +371,17 @@ export default class PlayerPiece {
 
     private checkSetForWin(set: PlayerPiece[]): WinCheckResults {
         let run = [];
+        let sub = [];
         for (let checkPiece of set) {
             if (this.compareTo(checkPiece) && checkPiece.getPieceColor() !== PlayerPiece.colors.empty) {
+                sub.push(checkPiece);
                 if (run.push(checkPiece) === 4) {
-                    return { win: true, run: run };
+                    return { win: true, run: run, col: this.col };
                 }
             } else {
                 run = [];
             }
         }
-        return { win: false, run: run };
+        return { win: false, run: run, col: this.col };
     }
 }

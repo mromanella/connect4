@@ -19,12 +19,12 @@ export default class Board {
 
     currentTurn: string;
     clearBoardBtn: HTMLElement;
-    gameRunning: boolean = false;
+    gameRunning: boolean;
     currentTurnEl: HTMLElement;
     settings: Settings;
 
-    computersTurn: boolean = false;
-    mock: boolean = false;
+    computersTurn: boolean;;
+    mock: boolean;;
 
     /**
      * Creates a new board initialized with empty pieces. StartingTurn defaults
@@ -42,6 +42,7 @@ export default class Board {
         this.currentTurnEl = document.getElementById('current-turn');
         this.currentTurnEl.innerHTML = `${this.currentTurn}'s turn`;
         this.gameRunning = true;
+        this.computersTurn = false;
     }
 
     private createBoard() {
@@ -90,7 +91,7 @@ export default class Board {
                     if (this.computersTurn) {
                         return;
                     } else {
-                        this.displayPossibleMove(col, true);
+                        this.placepiece(col);
                     }
                 }, false);
 
@@ -212,14 +213,13 @@ export default class Board {
         Utils.vibrateDevice([25]);
 
         if (this.settings.gameType === GameType.playerVsAI) {
-            if (this.settings.aiColor !== this.currentTurn) {
+            if (this.settings.aiColor === this.currentTurn) {
                 this.computersTurn = true;
-            } else {
-                this.computersTurn = false;
             }
         }
 
         await this.board[row][col].setPieceColor(this.currentTurn);
+
         let winCheckResults = this.board[row][col].checkForWin();
         if (this.gameRunning) {
             if (winCheckResults.win) {
@@ -241,6 +241,11 @@ export default class Board {
                 }
             }
             // this.displayPossibleMove(col);    
+        }
+        if (this.settings.gameType === GameType.playerVsAI) {
+            if (this.settings.aiColor === this.currentTurn) {
+                this.computersTurn = false;
+            }
         }
         this.changeTurn();
     }

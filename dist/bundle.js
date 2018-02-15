@@ -1842,15 +1842,18 @@ class ComputerController {
             let winChecks = [];
             let boardCopy = testBoard.copyBoard();
             let row = testBoard.getPossibleMove(col);
-            if (row !== -1) {
+            row += 1;
+            if (row <= 5) {
                 // Loop through each column and place the computer players piece.
                 // Check win for each piece.
-                boardCopy[row][col].setPieceColor(color);
                 winChecks.push(boardCopy[row][col].checkDiagonalLeft());
                 winChecks.push(boardCopy[row][col].checkDiagonalRight());
                 winChecks.push(boardCopy[row][col].checkHorizontalWin());
                 winChecks.push(boardCopy[row][col].checkVerticalWin());
                 scoreMap[col] = this.computeScore(winChecks);
+            }
+            else {
+                scoreMap[col] = 0;
             }
         }
         if (scoreMap[this.getMaxCol(scoreMap)] === Number.POSITIVE_INFINITY) {

@@ -166,11 +166,13 @@ export class SplashScreen {
     }
 
     initButtons() {
-        this.clearBoardBtn.addEventListener('click', (e: CustomEvent) => {
+        this.clearBoardBtn.addEventListener('click', async (e: CustomEvent) => {
             e.stopPropagation();
             Utils.vibrateDevice([25]);
-            this.gameController.gameBoard.clearBoard();
             this.closeSidebarButton.click();
+            await this.gameController.gameBoard.clearBoard();
+            this.gameController.gameBoard.destroyBoard();
+            this.gameController.newGame();
         });
 
         // Player vs AI button

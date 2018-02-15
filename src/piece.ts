@@ -17,12 +17,6 @@ export default class PlayerPiece {
         possibleRed: 'possiblered'
     };
 
-    static readonly events = {
-        dropInAnimationEnd: new CustomEvent('dropInAnimationEnd'),
-        bounceAnimationEnd: new CustomEvent('bounceAnimationEnd'),
-        dropOutAnimationEnd: new CustomEvent('dropOutAnimationEnd')
-    }
-
     // row and col are the row and column coordinates of this Piece on the board
     row: number;
     col: number;
@@ -63,7 +57,7 @@ export default class PlayerPiece {
      * Sets the Piece to the given color. Applies drop in animation
      * @param PieceColor Piece color to set the Piece to
      */
-    setPieceColor(color: string) {
+    setPieceColor(color: string, applyAnimation: boolean = true): Promise<any> {
         // Set the Piece
         this.view.dataset.pieceColor = color;
 
@@ -76,15 +70,24 @@ export default class PlayerPiece {
 
 
         // Begin animation
-        this.dropInPiece();
+        return new Promise((resolve) => {
+            if (applyAnimation) {
+                resolve(this.dropInPiece());
+            } else {
+                resolve(null);
+            }
+        });
     }
 
     /**
      * Removes the Piece from the board
      * @param offset Optional offset to wait to remove item.
      */
-    remove(offset: number = 0) {
-        this.dropOutPiece(offset);
+    remove(offset: number = 0): Promise<any> {
+        return new Promise((resolve) => {
+            this.dropOutPiece(offset);
+            resolve(null);
+        });
     }
 
     /**
@@ -326,51 +329,58 @@ export default class PlayerPiece {
      * Drop in Piece performs the animation where a Piece falls
      * into the slot from above
      */
-    private dropInPiece() {
-        // Begin animation of the Piece dropping into the slot
-        this.view.classList.add('drop-piece-in');
-        // Set timeouts to remove animation and begin/remove bouncing animation upon
-        // Piece landing on bottom of column
-        setTimeout((e) => {
-            // this.view.classList.remove('drop-piece-in');
-            this.emitEvent(PlayerPiece.events.dropInAnimationEnd);
-            this.bouncePiece();
-        }, 500);
+    private dropInPiece(): Promise<any> {
+        return new Promise((resolve) => {
+            // Begin animation of the Piece dropping into the slot
+            this.view.classList.add('drop-piece-in');
+            // Set timeouts to remove animation and begin/remove bouncing animation upon
+            // Piece landing on bottom of column
+            setTimeout((e) => {
+                this.view.classList.remove('drop-piece-in');
+                resolve(this.bouncePiece());
+            }, 500);
+        });
     }
 
     /**
      * Bounce Piece performs the animation where a Piece bounces
      * after hitting the bottom of its slot
      */
-    private bouncePiece() {
-        this.view.classList.add('bounce');
-        setTimeout((e) => {
-            // this.view.classList.remove('bounce');
-            this.emitEvent(PlayerPiece.events.bounceAnimationEnd);
-        }, 400);
+    private bouncePiece(): Promise<any> {
+        return new Promise((resolve) => {
+            this.view.classList.add('bounce');
+            setTimeout((e) => {
+                this.view.classList.remove('bounce');
+                resolve(null);
+            }, 400);
+        });
+
     }
 
     /**
     * Performs animation which drops Piece out of the bottom of the board.
     * @param offset Optional offset to wait to remove item.
     */
-    private dropOutPiece(offset: number = 0) {
-        if (this.view.classList.contains('winner')) {
-            this.view.classList.remove('winner');
-        }
-
-        setTimeout((e) => {
-            this.view.classList.add('drop-piece-out');
+    private dropOutPiece(offset: number = 0): Promise<any> {
+        return new Promise((resolve) => {
+            if (this.view.classList.contains('winner')) {
+                this.view.classList.remove('winner');
+            }
+    
             setTimeout((e) => {
-                this.setPieceColor(PlayerPiece.colors.empty);
-                this.emitEvent(PlayerPiece.events.dropOutAnimationEnd);
-                // Height of board is 6 
-            }, 75 * 6);
-        }, 100 * (offset + 1));
+                this.view.classList.add('drop-piece-out');
+                setTimeout((e) => {
+                    this.setPieceColor(PlayerPiece.colors.empty, false);
+                    // Height of board is 6 
+                    resolve(null);
+                }, 75 * 6);
+            }, 100 * (offset + 1));
+        });
     }
 
     private checkSetForWin(set: PlayerPiece[]): WinCheckResults {
         let run = [];
+        let highestRun: PlayerPiece[] = [];
         let sub = [];
         for (let checkPiece of set) {
             if (this.compareTo(checkPiece) && checkPiece.getPieceColor() !== PlayerPiece.colors.empty) {
@@ -379,9 +389,12 @@ export default class PlayerPiece {
                     return { win: true, run: run, col: this.col };
                 }
             } else {
+                if (run.length > highestRun.length) {
+                    highestRun = run;
+                }
                 run = [];
             }
         }
-        return { win: false, run: run, col: this.col };
+        return { win: false, run: highestRun, col: this.col };
     }
 }

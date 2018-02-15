@@ -8,9 +8,7 @@ export default class Board {
 
     static readonly events = {
         gameOver: new CustomEvent('gameOver'),
-        boardCleared: new CustomEvent('boardCleared'),
         changeTurn: new CustomEvent('changeTurn'),
-        dropOutComplete: new CustomEvent('dropOutComplete')
     }
 
     width: number = 7;
@@ -34,7 +32,7 @@ export default class Board {
      * @param element The DOM element to display the board in.
      * @param startingTurn Optional color to start with.
      */
-    constructor(element: HTMLElement, settings: Settings, mock:boolean = false) {
+    constructor(element: HTMLElement, settings: Settings, mock: boolean = false) {
         this.mock = mock;
         let startingTurn = settings.startingTurn;
         this.settings = settings;
@@ -71,26 +69,29 @@ export default class Board {
                 // for placing a piece
                 newPiece.view.addEventListener('mouseenter', (e) => {
                     e.stopPropagation();
-                    if (this.computersTurn || !this.gameRunning) {
+                    if (this.computersTurn) {
                         return;
+                    } else {
+                        this.displayPossibleMove(col);
                     }
-                    this.displayPossibleMove(col);
                 }, false);
 
                 newPiece.view.addEventListener('mouseleave', (e) => {
                     e.stopPropagation();
-                    if (this.computersTurn || !this.gameRunning) {
+                    if (this.computersTurn) {
                         return;
+                    } else {
+                        this.displayPossibleMove(col, true);
                     }
-                    this.displayPossibleMove(col, true);
                 }, false);
 
                 newPiece.view.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    if (this.computersTurn || !this.gameRunning) {
+                    if (this.computersTurn) {
                         return;
+                    } else {
+                        this.displayPossibleMove(col, true);
                     }
-                    this.placepiece(col);
                 }, false);
 
                 placeHolder.appendChild(newPiece.view);
@@ -168,18 +169,22 @@ export default class Board {
         let row = -1;
         for (let i = 0; i < this.height; i++) {
             let piece = colList[i];
-            // If piece is not empty and is not possibleRed
-            // and is not possibleYellow 
-            if ((!piece.compareTo(PlayerPiece.colors.empty)
-                && !piece.compareTo(PlayerPiece.colors.possibleRed)
-                && !piece.compareTo(PlayerPiece.colors.possibleYellow))) {
-                if (i - 1 >= 0) {
-                    row = i - 1;
-                    found = true;
-                    break;
-                } else {
-                    return row;
+            if (piece) {
+                // If piece is not empty and is not possibleRed
+                // and is not possibleYellow 
+                if ((!piece.compareTo(PlayerPiece.colors.empty)
+                    && !piece.compareTo(PlayerPiece.colors.possibleRed)
+                    && !piece.compareTo(PlayerPiece.colors.possibleYellow))) {
+                    if (i - 1 >= 0) {
+                        row = i - 1;
+                        found = true;
+                        break;
+                    } else {
+                        return row;
+                    }
                 }
+            } else {
+                return -1;
             }
         }
         if (!found) {
@@ -193,7 +198,7 @@ export default class Board {
      * Places the currentTurns piece into the available slot.
      * @param col 
      */
-    placepiece(col: number) {
+    async placepiece(col: number) {
         let validPlacement = this.checkForValidPlacement(col);
         if (!validPlacement) {
             return false;
@@ -206,30 +211,36 @@ export default class Board {
 
         Utils.vibrateDevice([25]);
 
-        this.board[row][col].setPieceColor(this.currentTurn);
+        if (this.settings.gameType === GameType.playerVsAI) {
+            if (this.settings.aiColor !== this.currentTurn) {
+                this.computersTurn = true;
+            } else {
+                this.computersTurn = false;
+            }
+        }
+
+        await this.board[row][col].setPieceColor(this.currentTurn);
         let winCheckResults = this.board[row][col].checkForWin();
+        if (this.gameRunning) {
+            if (winCheckResults.win) {
+                this.gameRunning = false;
+                for (let piece of winCheckResults.run) {
+                    piece.displayWinAnimation();
+                    this.currentTurnEl.innerHTML = `${piece.getPieceColor()} WON!`;
+                }
 
-        this.boardView.addEventListener(PlayerPiece.events.bounceAnimationEnd.type, (e) => {
-            e.stopPropagation();
-            if (this.gameRunning) {
-                if (winCheckResults.win) {
+                Utils.vibrateDevice([100, 200, 100, 200, 100, 200, 100]);
+
+                this.emitEvent(Board.events.gameOver, { win: winCheckResults.win, run: winCheckResults.run });
+                return;
+            } else {
+                if (this.checkIfTie()) {
                     this.gameRunning = false;
-                    for (let piece of winCheckResults.run) {
-                        piece.displayWinAnimation();
-                        this.currentTurnEl.innerHTML = `${piece.getPieceColor()} WON!`;
-                    }
-
-                    Utils.vibrateDevice([100, 200, 100, 200, 100, 200, 100]);
-
-                    this.emitEvent(Board.events.gameOver, { win: winCheckResults.win, run: winCheckResults.run });
+                    this.currentTurnEl.innerHTML = `TIE!`;
                     return;
                 }
-                // this.displayPossibleMove(col);    
             }
-        }, false);
-        if (this.checkIfTie()) {
-            this.gameRunning = false;
-            this.currentTurnEl.innerHTML = `TIE!`;
+            // this.displayPossibleMove(col);    
         }
         this.changeTurn();
     }
@@ -259,13 +270,6 @@ export default class Board {
         } else {
             this.currentTurn = PlayerPiece.colors.red;
         }
-        if (this.settings.gameType === GameType.playerVsAI) {
-            if (this.settings.aiColor === this.currentTurn) {
-                this.computersTurn = true;
-            } else {
-                this.computersTurn = false;
-            }
-        }
         this.currentTurnEl.innerHTML = `${this.currentTurn}'s turn`;
         setTimeout((e) => {
             this.emitEvent(Board.events.changeTurn, {})
@@ -273,21 +277,21 @@ export default class Board {
         // console.log('Change turn', this.currentTurn);
     }
 
-    clearBoard() {
-        document.body.style.overflowY = 'hidden';
-        for (let r = this.height - 1; r >= 0; r--) {
-            let rows = this.getElementsForRow(r);
-            let rowsCopy = rows.slice();
-            for (let c = 0; c < rowsCopy.length; c++) {
-                rows[c].remove(c);
+    clearBoard(): Promise<any> {
+        return new Promise(async (resolve) => {
+            document.body.style.overflowY = 'hidden';
+            for (let r = this.height - 1; r >= 0; r--) {
+                let rows = this.getElementsForRow(r);
+                let rowsCopy = rows.slice();
+                for (let c = 0; c < rowsCopy.length; c++) {
+                    await rows[c].remove(c);
+                }
             }
-        }
-        setTimeout(() => {
-            document.body.style.overflow = 'auto';
-            // this.emitEvent(Board.events.gameOver);
-            // this.emitEvent(Board.events.boardCleared);
-            this.emitEvent(Board.events.dropOutComplete, {});
-        }, 1500);
+            setTimeout(() => {
+                document.body.style.overflow = 'auto';
+                resolve();
+            }, 1500);
+        });
     }
 
     copyBoard(): PlayerPiece[][] {

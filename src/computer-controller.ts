@@ -14,6 +14,7 @@ export class ComputerController {
     color: string;
     settings: Settings;
     opponentColor: string;
+    statusElement: HTMLElement;
 
     constructor(gameBoard: Board, settings: Settings) {
         this.gameBoard = gameBoard;
@@ -21,6 +22,7 @@ export class ComputerController {
         this.color = settings.aiColor;
         this.settings = settings;
         this.opponentColor = this.color === PlayerPiece.colors.red ? PlayerPiece.colors.yellow : PlayerPiece.colors.red;
+
         console.log('Computer difficulty set to ', this.difficulty);
     }
 
@@ -30,155 +32,181 @@ export class ComputerController {
      * implementing a form of the max-min algorithm
      */
     decideMove() {
+        let turn = this.difficulty;
         let testBoard = new Board(document.createElement('div'), this.settings, true);
         testBoard.board = this.gameBoard.copyBoard();
-        let turn = this.difficulty * 2;
-        let max: any = { col: 3, value: 0 };
-        let min: any = { col: 3, value: 0 };
-        let col = 3;
-        let initTurn = turn;
 
-        while (turn > 0) {
-            let maxChecks: WinCheckResults[] = this.getMax(testBoard, this.color);
-            for (let i = 0; i < maxChecks.length; i++) {
-                if (maxChecks[i].win) {
-                    max = { col: maxChecks[i].col, value: Number.POSITIVE_INFINITY };
-                    break;
-                }
+        let possibleMoves = this.projectMoves(testBoard, this.color);
+        let max = this.playAhead(testBoard, turn, this.color);
+        let bestCol = max[0];
+        let bestScore = max[1];
 
-                if (maxChecks[i].run.length > max.value) {
-                    max = { col: maxChecks[i].col, value: maxChecks[i].run.length };
-                }
-            }
+        // console.log(bestCol, bestScore);
 
-            let minChecks: WinCheckResults[] = this.getMax(testBoard, this.opponentColor)
-            for (let i = 0; i < minChecks.length; i++) {
-                if (minChecks[i].win && (turn !== initTurn)) {
-                    // console.log('lose', minChecks[i].col)
-                    min = { col: minChecks[i].col, value: Number.POSITIVE_INFINITY };
-                    break;
-                }
-
-                if (minChecks[i].run.length > min.value) {
-                    min = { col: minChecks[i].col, value: minChecks[i].run.length };
-                }
-            }
-
-            if (min.value === Number.POSITIVE_INFINITY) {
-                // console.log('losing next turn')
-                col = min.col;
-                break;
-            } 
-
-            if (max.value === Number.POSITIVE_INFINITY) {
-                col = max.col;
-                break;
-            }
-            
-            if (max.value > min.value) {
-                col = max.col;
-            } else {
-                col = min.col;
-            }
-            turn--;
-        }
-
-        let earlyGame = 0;
-        for (let i = 0; i < this.gameBoard.board[5].length; i++) {
-            if (this.gameBoard.board[5][i].compareTo(PlayerPiece.colors.empty)) {
-                earlyGame++;
-            }
-        }
-
-        if (earlyGame > 5) {
-            col = Math.floor(Math.random() * 3 + 2);
-
-            while (this.gameBoard.getPossibleMove(col) === -1) {
-                col = Math.floor(Math.random() * 7);
-            }
-        }
-
-        // console.log(max, min);
-        this.gameBoard.placepiece(col);
+        this.gameBoard.placepiece(bestCol);
+        // this.updateComputerStatus(-1);
     }
 
-    private getMax(testBoard: Board, color: string): WinCheckResults[] {
-        let winChecks: WinCheckResults[] = [];
+    private playAhead(testBoard: Board, turn: number, color: string): any {
+
+        if (turn < 0) {
+            return this.score(testBoard, color);
+        }
+        let possibleMoves = this.projectMoves(testBoard, color);
+        let boardReset = testBoard.copyBoard();
+
+        if (color === this.color) {
+            let bestScore = Number.NEGATIVE_INFINITY;
+            let bestCol = 0;
+            let totalMoves = 0;
+            // Get our max
+            for (let col of possibleMoves) {
+                testBoard = this.makeMove(testBoard, col, color);
+                let max = this.playAhead(testBoard, turn - 1, this.opponentColor);
+                let c = max[0];
+                let maxScore = max[1];
+                // totalMoves += max[2];
+                testBoard.board = boardReset;
+                if (maxScore > bestScore) {
+                    bestScore = maxScore;
+                    bestCol = c;
+                }
+                // this.updateComputerStatus(totalMoves);
+            }
+            return [bestCol, bestScore, totalMoves];
+        } else {
+            let bestCol = 0;
+            let bestScore = Number.POSITIVE_INFINITY;
+            let totalMoves = 0;
+            // Respond wth opponents best min move
+            for (let col of possibleMoves) {
+                testBoard = this.makeMove(testBoard, col, color);
+                let min = this.playAhead(testBoard, turn - 1, this.color);
+                let c = min[0];
+                let minScore = min[1]
+                // totalMoves += min[2];
+                testBoard.board = boardReset;
+                if (minScore < bestScore) {
+                    bestScore = minScore;
+                    bestCol = c;
+                }
+                // this.updateComputerStatus(totalMoves);
+            }
+            return [bestCol, bestScore, totalMoves];
+        }
+    }
+
+    private updateComputerStatus(move: number) {
+        if (move === -1) {
+            this.statusElement.innerHTML = '';
+        } else {
+            this.statusElement.innerHTML = `Evaluating move number ${move}`;
+        }
+    }
+
+    private score(testBoard: Board, color: string) {
+        let opp = color === this.color ? this.opponentColor : this.color;
+        let iWin = this.checkWin(testBoard, color);
+        let oppWin = this.checkWin(testBoard, opp);
+        if (iWin.win) {
+            return [iWin.col, Number.POSITIVE_INFINITY, 1];
+        } else if (oppWin.win) {
+            return [oppWin.col, Number.NEGATIVE_INFINITY, 1];
+        } else {
+            if (color === this.color) {
+                return [oppWin.col, oppWin.score, 1];
+            } else {
+                return [iWin.col, iWin.score, 1];
+            }
+        }
+    }
+
+    private makeMove(testBoard: Board, col: number, color: string): Board {
+        let row = testBoard.getPossibleMove(col);
+        testBoard.board[row][col].setPieceColor(color, false);
+        return testBoard;
+    }
+
+    private projectMoves(testBoard: Board, color: string): number[] {
+        let possibleMoves = [];
         for (let col = 0; col < this.gameBoard.width; col++) {
-            // Create copy of board.
-            let boardCopy: PlayerPiece[][] = testBoard.copyBoard();
+            // Create copy of current board.
+            let winChecks: WinCheckResults[] = [];
+            let boardCopy = testBoard.copyBoard();
+            let row = testBoard.getPossibleMove(col);
+            let score = 0;
+            if (row !== -1) {
+                possibleMoves.push(col);
+            }
+        }
+
+        return possibleMoves;
+    }
+
+    private checkWin(testBoard: Board, color: string) {
+        let scoreMap: any = {};
+        for (let col = 0; col < this.gameBoard.width; col++) {
+            // Create copy of current board.
+            let winChecks: WinCheckResults[] = [];
+            let boardCopy = testBoard.copyBoard();
             let row = testBoard.getPossibleMove(col);
             if (row !== -1) {
                 // Loop through each column and place the computer players piece.
                 // Check win for each piece.
                 boardCopy[row][col].setPieceColor(color);
-                // console.log(boardCopy[5][6].checkHorizontalWin())
-                winChecks.push(boardCopy[row][col].checkHorizontalWin());
-                // winChecks.push(boardCopy[row][col].checkHorizontalRight());
-                winChecks.push(boardCopy[row][col].checkVerticalWin());
                 winChecks.push(boardCopy[row][col].checkDiagonalLeft());
                 winChecks.push(boardCopy[row][col].checkDiagonalRight());
+                winChecks.push(boardCopy[row][col].checkHorizontalWin());
+                winChecks.push(boardCopy[row][col].checkVerticalWin());
+                scoreMap[col] = this.computeScore(winChecks);
             }
         }
+        if (scoreMap[this.getMaxCol(scoreMap)] === Number.POSITIVE_INFINITY) {
+            return { win: true, score: scoreMap[this.getMaxCol(scoreMap)], col: this.getMaxCol(scoreMap) };
+        }
+        return { win: false, score: scoreMap[this.getMaxCol(scoreMap)], col: this.getMaxCol(scoreMap) };
+    }
 
-        return winChecks;
+    private computeScore(checks: WinCheckResults[]) {
+        let score = 0;
+        for (let i = 0; i < checks.length; i++) {
+            let check = checks[i];
+            score += check.run.length;
+        }
+        return score;
+    }
 
-        // let scoreMap: any = {};
+    private getMinMax(max: any, min: any): any {
+        let minMax: any = {};
+        let columns = Object.keys(max);
+        for (let col of columns) {
+            let score = max[col] - min[col];
+            minMax[col] = score;
+        }
+        return minMax;
+    }
 
-        // for (let i = 0; i < columnWinList.length; i++) {
-        //     let score = 0;
-        //     let min = 0;
-        //     let max = 0;
-        //     let column = columnWinList[i].column;
-        //     for (let k = 0; k < columnWinList[i].winChecks.length; k++) {
+    private getMaxCol(scoreMap: any): number {
+        let maxScore = Number.NEGATIVE_INFINITY;
+        let maxCol = 0;
+        for (let col of Object.keys(scoreMap)) {
+            if (scoreMap[col] > maxScore) {
+                maxScore = scoreMap[col];
+                maxCol = Number(col);
+            }
+        }
+        return maxCol;
+    }
 
-        //         if (columnLoseList[i].winChecks[k].win) {
-        //             min = Number.NEGATIVE_INFINITY;
-        //             max = 0;
-        //         } else if (columnWinList[i].winChecks[k].win) {
-        //             max = Number.POSITIVE_INFINITY;
-        //             min = 0;
-        //         } else {
-        //             min = columnLoseList[i].winChecks[k].run.length;
-        //             max = columnWinList[i].winChecks[k].run.length;
-        //         }
-        //         scoreMap[column] = { min: min, max: max };
-        //     }
-        // }
-
-        // // Using the run as a metric, the maximize gain will be determined by the current length of the run.
-        // let showComputer = true;
-        // let maxScore = 0;
-        // let max = Math.floor(Math.random() * 7);
-        // while (this.gameBoard.getPossibleMove(max) === -1) {
-        //     max = Math.floor(Math.random() * 7);
-        // }
-
-        // // if (showComputer) {
-        // //     for (let i = 0; i < this.gameBoard.width; i++) {
-        // //         setTimeout((e) => {
-        // for (let column of Object.keys(scoreMap)) {
-        //     if (scoreMap[column].min === Number.NEGATIVE_INFINITY) {
-        //         return [column, scoreMap[column].min];
-        //     } else if (scoreMap[column].max === Number.POSITIVE_INFINITY) {
-        //         return [column, scoreMap[column].max];
-        //     } else {
-        //         if ((scoreMap[column].max - scoreMap[column].min) > (scoreMap[max].min - scoreMap[max].min)) {
-        //             max = Number(column);
-        //             maxScore = scoreMap[column];
-        //         }
-        //     }
-        // }
-
-        // // Choose a random
-        // if (maxScore === 0) {
-        //     max = Math.floor(Math.random() * 7);
-        //     while (this.gameBoard.getPossibleMove(max) === -1) {
-        //         max = Math.floor(Math.random() * 7);
-        //     }
-        // }
-
-        // return [max, maxScore];
-
+    private getMinCol(scoreMap: any): number {
+        let minScore = Number.POSITIVE_INFINITY;
+        let minCol = 0;
+        for (let col of Object.keys(scoreMap)) {
+            if (scoreMap[col] < minScore) {
+                minScore = scoreMap[col];
+                minCol = Number(col);
+            }
+        }
+        return minCol;
     }
 }

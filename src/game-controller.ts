@@ -9,11 +9,13 @@ export class GameController {
     gameBoard: Board;
     settings: Settings;
     computerController: ComputerController;
+    thinkingStatus: HTMLElement;
 
     constructor(settings: Settings) {
         this.boardElement = document.getElementById('board');
         let startingTurn = settings.startingTurn;
         this.settings = settings;
+        this.thinkingStatus = document.getElementById('loading-block');
 
         this.newGame();
 
@@ -23,16 +25,11 @@ export class GameController {
 
         }, false);
 
-        this.boardElement.addEventListener(Board.events.dropOutComplete.type, (e) => {
+        this.boardElement.addEventListener(Board.events.changeTurn.type, async (e: CustomEvent) => {
             e.stopPropagation();
-            this.gameBoard.destroyBoard();
-            // console.log('stupid exception');
-            this.newGame();
-        }, false);
-
-        this.boardElement.addEventListener(Board.events.changeTurn.type, (e: CustomEvent) => {
-            e.stopPropagation();
+            // this.thinkingStatus.style.setProperty('display', 'none');
             if (this.gameBoard.currentTurn === this.settings.aiColor) {
+                // this.thinkingStatus.style.setProperty('display', 'inline');
                 if (this.gameBoard.gameRunning) {
                     this.computerController.decideMove()
                 }
@@ -40,7 +37,7 @@ export class GameController {
         }, false);
     }
 
-    private newGame() {
+    newGame() {
         this.gameBoard = new Board(this.boardElement, this.settings);
         this.setupComputer();
     }

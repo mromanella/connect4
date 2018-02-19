@@ -1,12 +1,19 @@
 @import url('https://fonts.googleapis.com/css?family=Poppins');
 
+:root {
+    --red-color: radial-gradient(circle at center, rgb(255, 33, 29), #B20C09);
+    --yellow-color: radial-gradient(circle at center, yellow, rgb(224, 202, 36));
+    --body-background-color: rgb(250, 246, 246);
+    --board-color: #695ecc;
+}
+
 * {
     box-sizing: border-box;
 }
 
 body {
     /* background-color: white; */
-    background-color: rgb(250, 246, 246);
+    background-color: var(--body-background-color);
     height: 100%;
     width: auto;
 }
@@ -242,7 +249,7 @@ body {
     height: auto;
     /* background-color: rgb(72, 72, 243); */
     /* background-color: #93a4ad; */
-    background-color: #695ecc;
+    background-color: var(--board-color);
 }
 
 .piece {
@@ -262,11 +269,11 @@ body {
 }
 
 .piece[data-piece-color='red'] {
-    background-image: radial-gradient(circle at center, rgb(255, 33, 29), #B20C09);
+    background-image: var(--red-color);
 }
 
 .piece[data-piece-color='yellow'] {
-    background-image: radial-gradient(circle at center, yellow, rgb(224, 202, 36));
+    background-image: var(--yellow-color);
 }
 
 .piece[data-piece-color='possibleyellow'], .letter-background[data-piece-color='yellow'] {

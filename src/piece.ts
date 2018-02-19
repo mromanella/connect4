@@ -390,11 +390,11 @@ export default class PlayerPiece {
                 }
             } else {
                 if (run.length > highestRun.length) {
-                    highestRun = run;
+                    highestRun = run.slice();
                 }
                 run = [];
             }
         }
-        return { win: false, run: highestRun, col: this.col };
+        return { win: false, run: sub, col: this.col };
     }
 }

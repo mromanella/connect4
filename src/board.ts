@@ -23,8 +23,8 @@ export default class Board {
     currentTurnEl: HTMLElement;
     settings: Settings;
 
-    computersTurn: boolean;;
-    mock: boolean;;
+    computersTurn: boolean;
+    mock: boolean;
 
     /**
      * Creates a new board initialized with empty pieces. StartingTurn defaults
@@ -185,13 +185,14 @@ export default class Board {
                     }
                 }
             } else {
+                // console.log('huhuhuhu')
                 return -1;
             }
         }
         if (!found) {
             row = this.height - 1;
         }
-
+        // console.log(row)
         return row;
     }
 
@@ -211,12 +212,6 @@ export default class Board {
         }
 
         Utils.vibrateDevice([25]);
-
-        if (this.settings.gameType === GameType.playerVsAI) {
-            if (this.settings.aiColor === this.currentTurn) {
-                this.computersTurn = true;
-            }
-        }
 
         await this.board[row][col].setPieceColor(this.currentTurn);
 
@@ -241,11 +236,6 @@ export default class Board {
                 }
             }
             // this.displayPossibleMove(col);    
-        }
-        if (this.settings.gameType === GameType.playerVsAI) {
-            if (this.settings.aiColor === this.currentTurn) {
-                this.computersTurn = false;
-            }
         }
         this.changeTurn();
     }

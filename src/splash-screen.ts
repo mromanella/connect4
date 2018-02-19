@@ -56,7 +56,7 @@ export class SplashScreen {
         Utils.addCssClass(btnBox, ['btn-box']);
 
         this.computerDifficulty = document.createElement('select');
-        for (let i = 1; i <= 4; i++) {
+        for (let i = 1; i <= 3; i++) {
             let child = document.createElement('option');
             child.value = String(i);
             child.innerHTML = String(i);
@@ -65,6 +65,7 @@ export class SplashScreen {
             }
             this.computerDifficulty.appendChild(child);
         }
+        this.computerDifficulty.style.display = 'none';
         btnBox.appendChild(this.computerDifficulty);
 
         this.playerVsComputerBtn = document.createElement('button');
@@ -183,7 +184,8 @@ export class SplashScreen {
 
             // this.destroyTitle();
             // let settingsScreen = new SettingsScreen(this.settings);
-            this.settings.difficulty = Number(this.computerDifficulty.options[this.computerDifficulty.selectedIndex].text);
+            this.settings.difficulty = 1;
+            // this.settings.difficulty = Number(this.computerDifficulty.options[this.computerDifficulty.selectedIndex].text);
             this.settings.aiColor = PlayerPiece.colors.yellow;
             this.settings.gameType = GameType.playerVsAI;
             this.gameController = new GameController(this.settings);

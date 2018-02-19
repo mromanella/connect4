@@ -37,13 +37,20 @@ export class ComputerController {
         testBoard.board = this.gameBoard.copyBoard();
 
         let possibleMoves = this.projectMoves(testBoard, this.color);
-        let max = this.playAhead(testBoard, turn, this.color);
-        let bestCol = max[0];
-        let bestScore = max[1];
+        let score = this.score(testBoard, this.color);
+        if (score[1] === Number.POSITIVE_INFINITY || score[1] === Number.NEGATIVE_INFINITY) {
+            this.gameBoard.placepiece(score[0]);
 
-        // console.log(bestCol, bestScore);
-
-        this.gameBoard.placepiece(bestCol);
+        } else {
+            let max = this.playAhead(testBoard, turn , this.color);
+            // console.log(max);
+            let bestCol = max[0];
+            let bestScore = max[1];
+    
+            // console.log(bestCol, bestScore);
+    
+            this.gameBoard.placepiece(bestCol);
+        }   
         // this.updateComputerStatus(-1);
     }
 
@@ -54,14 +61,14 @@ export class ComputerController {
         }
         let possibleMoves = this.projectMoves(testBoard, color);
         let boardReset = testBoard.copyBoard();
+        let bestCol;
+        let bestScore;
 
         if (color === this.color) {
-            let bestScore = Number.NEGATIVE_INFINITY;
-            let bestCol = 0;
-            let totalMoves = 0;
+            bestScore = Number.NEGATIVE_INFINITY;
             // Get our max
             for (let col of possibleMoves) {
-                testBoard = this.makeMove(testBoard, col, color);
+                // testBoard = this.makeMove(testBoard, col, color);
                 let max = this.playAhead(testBoard, turn - 1, this.opponentColor);
                 let c = max[0];
                 let maxScore = max[1];
@@ -73,14 +80,11 @@ export class ComputerController {
                 }
                 // this.updateComputerStatus(totalMoves);
             }
-            return [bestCol, bestScore, totalMoves];
         } else {
-            let bestCol = 0;
-            let bestScore = Number.POSITIVE_INFINITY;
-            let totalMoves = 0;
+            bestScore = Number.POSITIVE_INFINITY;
             // Respond wth opponents best min move
             for (let col of possibleMoves) {
-                testBoard = this.makeMove(testBoard, col, color);
+                // testBoard = this.makeMove(testBoard, col, color);
                 let min = this.playAhead(testBoard, turn - 1, this.color);
                 let c = min[0];
                 let minScore = min[1]
@@ -92,8 +96,8 @@ export class ComputerController {
                 }
                 // this.updateComputerStatus(totalMoves);
             }
-            return [bestCol, bestScore, totalMoves];
         }
+        return [bestCol, bestScore];
     }
 
     private updateComputerStatus(move: number) {
@@ -113,11 +117,12 @@ export class ComputerController {
         } else if (oppWin.win) {
             return [oppWin.col, Number.NEGATIVE_INFINITY, 1];
         } else {
-            if (color === this.color) {
-                return [oppWin.col, oppWin.score, 1];
-            } else {
-                return [iWin.col, iWin.score, 1];
-            }
+            // if (color === this.color) {
+            //     return [oppWin.col, -oppWin.score, 1];
+            // } else {
+            //     return [iWin.col, iWin.score, 1];
+            // }
+            return [oppWin.col, -oppWin.score, 1];
         }
     }
 
@@ -132,9 +137,7 @@ export class ComputerController {
         for (let col = 0; col < this.gameBoard.width; col++) {
             // Create copy of current board.
             let winChecks: WinCheckResults[] = [];
-            let boardCopy = testBoard.copyBoard();
             let row = testBoard.getPossibleMove(col);
-            let score = 0;
             if (row !== -1) {
                 possibleMoves.push(col);
             }
@@ -145,34 +148,39 @@ export class ComputerController {
 
     private checkWin(testBoard: Board, color: string) {
         let scoreMap: any = {};
+
         for (let col = 0; col < this.gameBoard.width; col++) {
             // Create copy of current board.
             let winChecks: WinCheckResults[] = [];
             let boardCopy = testBoard.copyBoard();
             let row = testBoard.getPossibleMove(col);
-            row += 1;
-            if (row <= 5) {
+            if (row !== -1) {
                 // Loop through each column and place the computer players piece.
                 // Check win for each piece.
+                boardCopy[row][col].setPieceColor(color, false);
                 winChecks.push(boardCopy[row][col].checkDiagonalLeft());
                 winChecks.push(boardCopy[row][col].checkDiagonalRight());
                 winChecks.push(boardCopy[row][col].checkHorizontalWin());
                 winChecks.push(boardCopy[row][col].checkVerticalWin());
                 scoreMap[col] = this.computeScore(winChecks);
-            } else {
-                scoreMap[col] = 0;
             }
         }
+        let max = this.getMaxCol(scoreMap);
+        // console.log(this.getMaxCol(scoreMap));
         if (scoreMap[this.getMaxCol(scoreMap)] === Number.POSITIVE_INFINITY) {
-            return { win: true, score: scoreMap[this.getMaxCol(scoreMap)], col: this.getMaxCol(scoreMap) };
+            return { win: true, score: scoreMap[this.getMaxCol(scoreMap)], col: max };
         }
-        return { win: false, score: scoreMap[this.getMaxCol(scoreMap)], col: this.getMaxCol(scoreMap) };
+        return { win: false, score: scoreMap[this.getMaxCol(scoreMap)], col: max };
     }
 
     private computeScore(checks: WinCheckResults[]) {
         let score = 0;
         for (let i = 0; i < checks.length; i++) {
             let check = checks[i];
+            if (check.win) {
+                // console.log('win')
+                return Number.POSITIVE_INFINITY;
+            }
             score += check.run.length;
         }
         return score;

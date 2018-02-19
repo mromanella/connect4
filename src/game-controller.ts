@@ -17,7 +17,8 @@ export class GameController {
         this.settings = settings;
         this.thinkingStatus = document.getElementById('loading-block');
 
-        this.newGame();
+        this.gameBoard = this.createGame();
+        this.computerController = this.setupComputer();
 
         this.boardElement.addEventListener(Board.events.gameOver.type, (e: CustomEvent) => {
             console.log(e.detail)
@@ -25,24 +26,31 @@ export class GameController {
 
         }, false);
 
-        this.boardElement.addEventListener(Board.events.changeTurn.type, async (e: CustomEvent) => {
+        this.boardElement.addEventListener(Board.events.changeTurn.type, (e: CustomEvent) => {
             e.stopPropagation();
             // this.thinkingStatus.style.setProperty('display', 'none');
             if (this.gameBoard.currentTurn === this.settings.aiColor) {
+                this.gameBoard.computersTurn = true;
                 // this.thinkingStatus.style.setProperty('display', 'inline');
                 if (this.gameBoard.gameRunning) {
-                    this.computerController.decideMove()
+                    this.computerController.decideMove();
+                    this.gameBoard.computersTurn = false;
                 }
             }
         }, false);
     }
 
-    newGame() {
-        this.gameBoard = new Board(this.boardElement, this.settings);
-        this.setupComputer();
+    private createGame(): Board {
+        let board = new Board(this.boardElement, this.settings);
+        return board;
     }
 
-    private setupComputer() {
-        this.computerController = new ComputerController(this.gameBoard, this.settings)
+    newGame() {
+        this.gameBoard = this.createGame();
+        this.computerController = this.setupComputer();
+    }
+
+    private setupComputer(): ComputerController {
+        return new ComputerController(this.gameBoard, this.settings);
     }
 }

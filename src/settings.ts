@@ -1,4 +1,4 @@
-import PlayerPiece from "./piece";
+import PlayerPiece from "./piece/piece";
 import Utils from "./utils";
 
 

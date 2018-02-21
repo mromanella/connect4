@@ -1,7 +1,10 @@
-import { GameController } from "./game-controller";
-import Utils from "./utils";
-import PlayerPiece from "./piece";
-import { Settings, defaultSettings, SettingsScreen, GameType } from "./settings";
+import { GameController } from "../game-controller";
+import Utils from "../utils";
+import PlayerPiece from "../piece/piece";
+import { Settings, defaultSettings, SettingsScreen, GameType } from "../settings";
+
+// Styles
+import "./splash-screen.css";
 
 export class SplashScreen {
 

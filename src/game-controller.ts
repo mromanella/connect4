@@ -1,5 +1,5 @@
-import Board from './board';
-import PlayerPiece from './piece';
+import Board from './board/board';
+import PlayerPiece from './piece/piece';
 import { ComputerController } from './computer-controller';
 import { Settings } from './settings';
 
@@ -30,11 +30,10 @@ export class GameController {
             e.stopPropagation();
             // this.thinkingStatus.style.setProperty('display', 'none');
             if (this.gameBoard.currentTurn === this.settings.aiColor) {
-                this.gameBoard.computersTurn = true;
+                console.log(this.gameBoard.computersTurn);
                 // this.thinkingStatus.style.setProperty('display', 'inline');
                 if (this.gameBoard.gameRunning) {
                     this.computerController.decideMove();
-                    this.gameBoard.computersTurn = false;
                 }
             }
         }, false);

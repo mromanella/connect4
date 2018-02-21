@@ -1,0 +1,57 @@
+.splash-screen {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    position: fixed;
+    z-index: 10;
+    background-color: rgb(250, 246, 246);
+}
+
+.title {
+    display: flex;
+    align-self: center;
+    flex-direction: row;
+    flex-wrap: wrap;
+    transform: scale(2.1) translateY(100px);
+}
+
+.title.shrunk {
+    transform: scale(1.7) translateY(75px);
+}
+
+.letter-background {
+    opacity: 0;
+    border-radius: 50%;
+    width: 5em;
+    height: 5em;
+    text-align: center;
+}
+
+.letter-background.show {
+    opacity: 1!important;
+}
+
+.title-letters {
+    font-size: 5.5em;
+    color: #4f6179;
+    /* -webkit-font-smoothing: antialiased; */
+    /* color: #a09a96; */
+    /* text-shadow: .7px 0 0 #000, 0 .7px 0 #000, 0 .7px 0 #000, .7px 0 0 #000; */
+}
+
+.player-vs-ai {
+    background-color: rgb(92, 150, 204);
+}
+
+.player-vs-player {
+    background-color: rgb(204, 114, 92);
+}
+
+.skip-intro {
+    background-color: rgba(64, 73, 82, 0.747);
+    color: white;
+}

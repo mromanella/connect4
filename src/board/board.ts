@@ -1,6 +1,9 @@
-import PlayerPiece from "./piece";
-import Utils from "./utils";
-import { Settings, GameType } from "./settings";
+import PlayerPiece from "../piece/piece";
+import Utils from "../utils";
+import { Settings, GameType } from "../settings";
+
+// Styles
+import "./board.css";
 
 // The board class holds a reference to the board dom object
 // and the pieces within
@@ -213,7 +216,7 @@ export default class Board {
 
         Utils.vibrateDevice([25]);
 
-        await this.board[row][col].setPieceColor(this.currentTurn);
+        this.board[row][col].setPieceColor(this.currentTurn);
 
         let winCheckResults = this.board[row][col].checkForWin();
         if (this.gameRunning) {

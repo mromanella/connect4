@@ -1,10 +1,10 @@
 import "../src/index.css";
 // import "../src/bulma.css"; 
-import Board from "./board";
-import PlayerPiece from "./piece";
+import Board from "./board/board";
+import PlayerPiece from "./piece/piece";
 import { GameController } from './game-controller';
 import Utils from "./utils";
-import { SplashScreen } from "./splash-screen";
+import { SplashScreen } from "./splash-screen/splash-screen";
 
 window.onload = (e) => {
 

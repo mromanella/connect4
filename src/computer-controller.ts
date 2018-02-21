@@ -1,5 +1,5 @@
-import Board from './board';
-import PlayerPiece, { WinCheckResults } from './piece';
+import Board from './board/board';
+import PlayerPiece, { WinCheckResults } from './piece/piece';
 import { Difficulty, Settings } from './settings';
 
 interface columnMaxInt {
@@ -32,6 +32,7 @@ export class ComputerController {
      * implementing a form of the max-min algorithm
      */
     decideMove() {
+        this.gameBoard.computersTurn = true;
         let turn = this.difficulty;
         let testBoard = new Board(document.createElement('div'), this.settings, true);
         testBoard.board = this.gameBoard.copyBoard();
@@ -51,6 +52,7 @@ export class ComputerController {
     
             this.gameBoard.placepiece(bestCol);
         }   
+        this.gameBoard.computersTurn = false;
         // this.updateComputerStatus(-1);
     }
 

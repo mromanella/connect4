@@ -1,3 +1,6 @@
+// Styles
+import "./piece.css"
+
 export interface WinCheckResults {
     win: boolean;
     run: PlayerPiece[];
@@ -57,7 +60,7 @@ export default class PlayerPiece {
      * Sets the Piece to the given color. Applies drop in animation
      * @param PieceColor Piece color to set the Piece to
      */
-    setPieceColor(color: string, applyAnimation: boolean = true): Promise<any> {
+    async setPieceColor(color: string, applyAnimation: boolean = true): Promise<any> {
         // Set the Piece
         this.view.dataset.pieceColor = color;
 
@@ -70,13 +73,10 @@ export default class PlayerPiece {
 
 
         // Begin animation
-        return new Promise((resolve) => {
-            if (applyAnimation) {
-                resolve(this.dropInPiece());
-            } else {
-                resolve(null);
-            }
-        });
+        if (applyAnimation) {
+            await this.dropInPiece();
+            await this.bouncePiece();
+        }
     }
 
     /**
@@ -337,7 +337,7 @@ export default class PlayerPiece {
             // Piece landing on bottom of column
             setTimeout((e) => {
                 this.view.classList.remove('drop-piece-in');
-                resolve(this.bouncePiece());
+                resolve();
             }, 500);
         });
     }
@@ -366,7 +366,7 @@ export default class PlayerPiece {
             if (this.view.classList.contains('winner')) {
                 this.view.classList.remove('winner');
             }
-    
+
             setTimeout((e) => {
                 this.view.classList.add('drop-piece-out');
                 setTimeout((e) => {

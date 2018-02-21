@@ -31,7 +31,7 @@ export class ComputerController {
      * decideMove determines the best possible move for the AI to make by 
      * implementing a form of the max-min algorithm
      */
-    decideMove() {
+    async decideMove() {
         this.gameBoard.computersTurn = true;
         let turn = this.difficulty;
         let testBoard = new Board(document.createElement('div'), this.settings, true);

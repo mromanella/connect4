@@ -30,7 +30,6 @@ export class GameController {
             e.stopPropagation();
             // this.thinkingStatus.style.setProperty('display', 'none');
             if (this.gameBoard.currentTurn === this.settings.aiColor) {
-                console.log(this.gameBoard.computersTurn);
                 // this.thinkingStatus.style.setProperty('display', 'inline');
                 if (this.gameBoard.gameRunning) {
                     this.computerController.decideMove();

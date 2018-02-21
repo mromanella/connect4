@@ -73,7 +73,7 @@ export default class Board {
                 // for placing a piece
                 newPiece.view.addEventListener('mouseenter', (e) => {
                     e.stopPropagation();
-                    if (this.computersTurn) {
+                    if (this.computersTurn || !this.gameRunning) {
                         return;
                     } else {
                         this.displayPossibleMove(col);
@@ -82,7 +82,7 @@ export default class Board {
 
                 newPiece.view.addEventListener('mouseleave', (e) => {
                     e.stopPropagation();
-                    if (this.computersTurn) {
+                    if (this.computersTurn || !this.gameRunning) {
                         return;
                     } else {
                         this.displayPossibleMove(col, true);
@@ -91,7 +91,7 @@ export default class Board {
 
                 newPiece.view.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    if (this.computersTurn) {
+                    if (this.computersTurn || !this.gameRunning) {
                         return;
                     } else {
                         this.placepiece(col);
@@ -203,7 +203,7 @@ export default class Board {
      * Places the currentTurns piece into the available slot.
      * @param col 
      */
-    async placepiece(col: number) {
+    placepiece(col: number) {
         let validPlacement = this.checkForValidPlacement(col);
         if (!validPlacement) {
             return false;

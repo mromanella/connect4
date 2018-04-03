@@ -1,34 +1,16 @@
 import Board from './board/board';
-import PlayerPiece, { WinCheckResults } from './piece/piece';
-import { Difficulty, Settings } from './settings';
-
-interface columnMaxInt {
-    column: number;
-    winChecks: WinCheckResults[];
-}
-
+import PlayerPiece from './piece/piece';
 export class ComputerController {
-
-    gameBoard: Board;
-    difficulty: Difficulty;
-    color: string;
-    settings: Settings;
-    opponentColor: string;
-    statusElement: HTMLElement;
-
-    constructor(gameBoard: Board, settings: Settings) {
+    constructor(gameBoard, settings) {
         this.gameBoard = gameBoard;
         this.difficulty = settings.difficulty;
         this.color = settings.aiColor;
         this.settings = settings;
         this.opponentColor = this.color === PlayerPiece.colors.red ? PlayerPiece.colors.yellow : PlayerPiece.colors.red;
-
         console.log('Computer difficulty set to ', this.difficulty);
     }
-
-
     /**
-     * decideMove determines the best possible move for the AI to make by 
+     * decideMove determines the best possible move for the AI to make by
      * implementing a form of the max-min algorithm
      */
     async decideMove() {
@@ -36,28 +18,23 @@ export class ComputerController {
         let turn = this.difficulty;
         let testBoard = new Board(document.createElement('div'), this.settings, true);
         testBoard.board = this.gameBoard.copyBoard();
-
         let possibleMoves = this.projectMoves(testBoard, this.color);
         let score = this.score(testBoard, this.color);
         if (score[1] === Number.POSITIVE_INFINITY || score[1] === Number.NEGATIVE_INFINITY) {
             this.gameBoard.placepiece(score[0]);
-
-        } else {
-            let max = this.playAhead(testBoard, turn , this.color);
+        }
+        else {
+            let max = this.playAhead(testBoard, turn, this.color);
             // console.log(max);
             let bestCol = max[0];
             let bestScore = max[1];
-    
             // console.log(bestCol, bestScore);
-    
             this.gameBoard.placepiece(bestCol);
-        }   
+        }
         this.gameBoard.opponentsTurn = false;
         // this.updateComputerStatus(-1);
     }
-
-    private playAhead(testBoard: Board, turn: number, color: string): any {
-
+    playAhead(testBoard, turn, color) {
         if (turn < 0) {
             return this.score(testBoard, color);
         }
@@ -65,7 +42,6 @@ export class ComputerController {
         let boardReset = testBoard.copyBoard();
         let bestCol;
         let bestScore;
-
         if (color === this.color) {
             bestScore = Number.NEGATIVE_INFINITY;
             // Get our max
@@ -82,14 +58,15 @@ export class ComputerController {
                 }
                 // this.updateComputerStatus(totalMoves);
             }
-        } else {
+        }
+        else {
             bestScore = Number.POSITIVE_INFINITY;
             // Respond wth opponents best min move
             for (let col of possibleMoves) {
                 // testBoard = this.makeMove(testBoard, col, color);
                 let min = this.playAhead(testBoard, turn - 1, this.color);
                 let c = min[0];
-                let minScore = min[1]
+                let minScore = min[1];
                 // totalMoves += min[2];
                 testBoard.board = boardReset;
                 if (minScore < bestScore) {
@@ -101,24 +78,25 @@ export class ComputerController {
         }
         return [bestCol, bestScore];
     }
-
-    private updateComputerStatus(move: number) {
+    updateComputerStatus(move) {
         if (move === -1) {
             this.statusElement.innerHTML = '';
-        } else {
+        }
+        else {
             this.statusElement.innerHTML = `Evaluating move number ${move}`;
         }
     }
-
-    private score(testBoard: Board, color: string) {
+    score(testBoard, color) {
         let opp = color === this.color ? this.opponentColor : this.color;
         let iWin = this.checkWin(testBoard, color);
         let oppWin = this.checkWin(testBoard, opp);
         if (iWin.win) {
             return [iWin.col, Number.POSITIVE_INFINITY, 1];
-        } else if (oppWin.win) {
+        }
+        else if (oppWin.win) {
             return [oppWin.col, Number.NEGATIVE_INFINITY, 1];
-        } else {
+        }
+        else {
             // if (color === this.color) {
             //     return [oppWin.col, -oppWin.score, 1];
             // } else {
@@ -127,33 +105,28 @@ export class ComputerController {
             return [oppWin.col, -oppWin.score, 1];
         }
     }
-
-    private makeMove(testBoard: Board, col: number, color: string): Board {
+    makeMove(testBoard, col, color) {
         let row = testBoard.getPossibleMove(col);
         testBoard.board[row][col].setPieceColor(color, false);
         return testBoard;
     }
-
-    private projectMoves(testBoard: Board, color: string): number[] {
+    projectMoves(testBoard, color) {
         let possibleMoves = [];
         for (let col = 0; col < this.gameBoard.width; col++) {
             // Create copy of current board.
-            let winChecks: WinCheckResults[] = [];
+            let winChecks = [];
             let row = testBoard.getPossibleMove(col);
             if (row !== -1) {
                 possibleMoves.push(col);
             }
         }
-
         return possibleMoves;
     }
-
-    private checkWin(testBoard: Board, color: string) {
-        let scoreMap: any = {};
-
+    checkWin(testBoard, color) {
+        let scoreMap = {};
         for (let col = 0; col < this.gameBoard.width; col++) {
             // Create copy of current board.
-            let winChecks: WinCheckResults[] = [];
+            let winChecks = [];
             let boardCopy = testBoard.copyBoard();
             let row = testBoard.getPossibleMove(col);
             if (row !== -1) {
@@ -174,8 +147,7 @@ export class ComputerController {
         }
         return { win: false, score: scoreMap[this.getMaxCol(scoreMap)], col: max };
     }
-
-    private computeScore(checks: WinCheckResults[]) {
+    computeScore(checks) {
         let score = 0;
         for (let i = 0; i < checks.length; i++) {
             let check = checks[i];
@@ -187,9 +159,8 @@ export class ComputerController {
         }
         return score;
     }
-
-    private getMinMax(max: any, min: any): any {
-        let minMax: any = {};
+    getMinMax(max, min) {
+        let minMax = {};
         let columns = Object.keys(max);
         for (let col of columns) {
             let score = max[col] - min[col];
@@ -197,8 +168,7 @@ export class ComputerController {
         }
         return minMax;
     }
-
-    private getMaxCol(scoreMap: any): number {
+    getMaxCol(scoreMap) {
         let maxScore = Number.NEGATIVE_INFINITY;
         let maxCol = 0;
         for (let col of Object.keys(scoreMap)) {
@@ -209,8 +179,7 @@ export class ComputerController {
         }
         return maxCol;
     }
-
-    private getMinCol(scoreMap: any): number {
+    getMinCol(scoreMap) {
         let minScore = Number.POSITIVE_INFINITY;
         let minCol = 0;
         for (let col of Object.keys(scoreMap)) {

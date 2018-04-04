@@ -7,4 +7,4 @@ Currently only supports local multiplayer with online support maybe someday in t
 The AI plays poorly.
 No really, you can win every game with the same move.
 
-See it in action => https://mromanella-portfolio.appspot.com/projects/connect4/
+See it in action => https://mattromanella.appspot.com/projects/connect4/

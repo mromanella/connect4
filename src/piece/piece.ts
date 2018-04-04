@@ -335,10 +335,10 @@ export default class PlayerPiece {
             this.view.classList.add('drop-piece-in');
             // Set timeouts to remove animation and begin/remove bouncing animation upon
             // Piece landing on bottom of column
-            setTimeout((e) => {
+            this.view.addEventListener('animationend', (e) => {
                 this.view.classList.remove('drop-piece-in');
                 resolve();
-            }, 500);
+            }, false);
         });
     }
 
@@ -349,10 +349,10 @@ export default class PlayerPiece {
     private bouncePiece(): Promise<any> {
         return new Promise((resolve) => {
             this.view.classList.add('bounce');
-            setTimeout((e) => {
+            this.view.addEventListener('animationend', (e) => {
                 this.view.classList.remove('bounce');
                 resolve(null);
-            }, 400);
+            }, false);
         });
 
     }
@@ -369,11 +369,11 @@ export default class PlayerPiece {
 
             setTimeout((e) => {
                 this.view.classList.add('drop-piece-out');
-                setTimeout((e) => {
+                this.view.addEventListener('animationend', (e) => {
                     this.setPieceColor(PlayerPiece.colors.empty, false);
                     // Height of board is 6 
                     resolve(null);
-                }, 75 * 6);
+                }, false);
             }, 100 * (offset + 1));
         });
     }

@@ -75,7 +75,7 @@ export default class Board {
                 // for placing a piece
                 newPiece.view.addEventListener('mouseenter', (e) => {
                     e.stopPropagation();
-                    if (!this.gameRunning || this.opponentsColor === this.currentTurn) {
+                    if (!this.gameRunning || (this.settings.gameType === GameType.playerVsAI && this.opponentsColor === this.currentTurn)) {
                         return;
                     } else {
                         this.displayPossibleMove(col);
@@ -84,7 +84,7 @@ export default class Board {
 
                 newPiece.view.addEventListener('mouseleave', (e) => {
                     e.stopPropagation();
-                    if (!this.gameRunning || this.opponentsColor === this.currentTurn) {
+                    if (!this.gameRunning || (this.settings.gameType === GameType.playerVsAI && this.opponentsColor === this.currentTurn)) {
                         return;
                     } else {
                         this.displayPossibleMove(col, true);
@@ -93,7 +93,7 @@ export default class Board {
 
                 newPiece.view.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    if (!this.gameRunning || this.opponentsColor === this.currentTurn) {
+                    if (!this.gameRunning || (this.settings.gameType === GameType.playerVsAI && this.opponentsColor === this.currentTurn)) {
                         return;
                     } else {
                         this.placepiece(col);

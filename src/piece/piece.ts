@@ -164,7 +164,7 @@ export default class PlayerPiece {
         while (i <= this.col + 3) {
             let checkCol = i;
             if (checkCol > 6) {
-                checkCol = i - this.col;
+                checkCol = this.col - (i - this.col);
                 if (checkSet.indexOf(this.parentBoard[this.row][checkCol]) === -1) {
                     checkSet.unshift(this.parentBoard[this.row][checkCol]);
                 }

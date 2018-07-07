@@ -205,7 +205,7 @@ export default class Board {
      * Places the currentTurns piece into the available slot.
      * @param col 
      */
-    placepiece(col: number) {
+    async placepiece(col: number) {
         let validPlacement = this.checkForValidPlacement(col);
         if (!validPlacement) {
             return false;
@@ -218,7 +218,7 @@ export default class Board {
 
         Utils.vibrateDevice([25]);
 
-        this.board[row][col].setPieceColor(this.currentTurn);
+        await this.board[row][col].setPieceColor(this.currentTurn);
 
         let winCheckResults = this.board[row][col].checkForWin();
         if (this.gameRunning) {

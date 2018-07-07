@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "webpack-dev-server --watch",
+    "dev": "webpack-dev-server --watch --port 4000 --open",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Matthew Romanella",

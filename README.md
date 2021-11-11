@@ -1,2 +1,2 @@
-# basicSetup
-A basic setup for a TypeScript based project
+# Connect 4
+Connect 4

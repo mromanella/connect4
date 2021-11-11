@@ -1,5 +1,3 @@
-/node_modules/
-/Color(1).docx
-/Color.docx
-/todo.txt
+node_modules
+bundle*
 package-lock.json

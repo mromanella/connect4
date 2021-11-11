@@ -2,61 +2,19 @@
 <html lang="en">
 
 <head>
-    <!-- <base href="/projects/connect4/"> -->
-    <base href="/">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <script src="https://use.fontawesome.com/591eaa7791.js"></script>
-    <title>Connect 4!</title>
-    <link rel="shortcut icon" href="favicon.JPG">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap" rel="stylesheet">
+    <title>Connect-Four</title>
 </head>
 
-<body style="visibility:hidden">
-
-    <header id="banner" class="banner">
-        <a class="link-no-decoration banner-items" href="/">
-            <div class="logo typography">
-                Connect 4
-            </div>
-        </a>
-        <button class="open-sbbutton btn banner-items">
-            <!-- <i class=" fa fa-ellipsis-h" aria-hidden="true"></i> -->
-            Menu
-        </button>
-    </header>
-
-    <main>
-        <article class="main-content">
-            <div class="sidebar">
-                <button class="btn close-sidebar-btn typography">
-                    Close
-                </button>
-                <ul>
-                    <li>
-                        <button id="clear-button" class="btn clear-button typography">Clear Board</button>
-                    </li>
-                </ul>
-            </div>
-            <section id="board" class="board"></section>
-            <section id="current-turn" class="current-turn">
-                
-            </section>
-            <div id="loading-block" class="loading-block">
-                    <div class="loading loading-left"></div>
-                    <div class="loading loading-center"></div>
-                    <div class="loading loading-right"></div>
-                </div>
-        </article>
-    </main>
-
-    <div id="screen-container"></div>
-    <div id="settings-screen-container"></div>
-
-    <footer style="text-align:center;bottom: 5px; position:absolute" class="typography">
-        <a href="https://github.com/mromanella/connect4">Source code</a>
-    </footer>
+<body style="display: flex;flex-direction: row;justify-content: center;">
+    <canvas id="game" width="800" height="800" style="border: 1px solid black;"></canvas>
+    <script src="/bundle.js"></script>
 </body>
-<script src="bundle.js"></script>
 
 </html>

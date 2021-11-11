@@ -1,25 +1,21 @@
 {
-  "name": "connect4",
+  "name": "connect-four",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Connect Four in canvas",
+  "main": "dist/index.js",
   "scripts": {
-    "dev": "webpack-dev-server --watch --port 4000 --open",
+    "dev": "webpack-dev-server --open",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Matthew Romanella",
   "license": "ISC",
   "devDependencies": {
-    "@types/socket.io-client": "^1.4.32",
-    "@types/uuid": "^3.4.3",
-    "css-loader": "^0.28.8",
-    "socket.io-client": "^2.0.4",
-    "style-loader": "^0.19.1",
-    "ts-loader": "^3.2.0",
-    "typescript": "^2.7.1",
-    "uglifyjs-webpack-plugin": "^1.1.6",
-    "uuid": "^3.2.1",
-    "webpack": "^3.10.0",
-    "webpack-dev-server": "^2.11.0"
+    "css-loader": "^6.5.1",
+    "style-loader": "^3.3.1",
+    "ts-loader": "^9.2.6",
+    "typescript": "^4.4.4",
+    "webpack": "^5.61.0",
+    "webpack-cli": "^4.9.1",
+    "webpack-dev-server": "^4.4.0"
   }
 }

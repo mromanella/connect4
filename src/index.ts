@@ -1,19 +1,21 @@
-// import "../src/bulma.css"; 
-import Board from "./board/board";
-import PlayerPiece from "./piece/piece";
-import { GameController } from './game-controller';
-import Utils from "./utils";
-import { SplashScreen } from "./splash-screen/splash-screen";
+import Animator from "./animator/animator";
+import { getEventController } from "./animator/events";
+import { PLAY_CLICKED } from "./constants";
+import { MainMenu } from "./main-menu";
 
-import "../src/index.css";
+const animator = new Animator('#game', 30);
+const mainMenu = new MainMenu(animator);
+// const singleplayer = new 
 
-window.onload = (e) => {
+const eventController = getEventController();
 
-    // playerVsComputerBtn.style.display = 'none';
-    let banner = document.getElementById('banner');
-    // splash
-    let splashContainer = document.getElementById('screen-container');
-    let splashScreen = new SplashScreen(splashContainer);
-    document.body.style.visibility = 'visible';
+eventController.register(PLAY_CLICKED, () => {
+    mainMenu.stop();
+    
+})
 
-}
+animator.setCallback(() => {
+    mainMenu.draw();
+})
+
+mainMenu.start();

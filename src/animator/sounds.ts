@@ -1,31 +1,21 @@
-class SoundController {
+class SoundController extends Map<string, HTMLAudioElement> {
 
     mute: boolean = false;
     private _volumeMax: number = 1;
-    private sounds: Map<string, HTMLAudioElement> = new Map<string, HTMLAudioElement>();
 
-    constructor() {
 
-    }
-
-    
-    public get volumeMax() : number {
+    public get volumeMax(): number {
         return this._volumeMax;
     }
 
-    
+
     public set volumeMax(max: number) {
         this._volumeMax = max;
-        for (let audio of this.sounds.values()) {
+        for (let audio of this.values()) {
             if (audio.volume > this._volumeMax) {
                 audio.volume = this._volumeMax;
             }
         }
-    }
-    
-
-    get(name: string): HTMLAudioElement {
-        return this.sounds.get(name);
     }
 
     add(name: string, src: string): SoundController {
@@ -33,13 +23,13 @@ class SoundController {
         if (audio.volume > this._volumeMax) {
             audio.volume = this._volumeMax;
         }
-        this.sounds.set(name, audio);
+        this.set(name, audio);
         return this;
     }
 
     remove(name: string): SoundController {
-        const audio = this.get(name);
-        this.sounds.delete(name);
+        this.get(name);
+        this.delete(name);
         return this;
     }
 

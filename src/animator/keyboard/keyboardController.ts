@@ -5,26 +5,14 @@ import Key from './key';
  *
  *
  */
-export class KeyboardController {
+export class KeyboardController extends Map<string, Key> {
 
-    protected keyboardKeys: Map<string, Key> = new Map<string, Key>();
-
-    constructor(keyboardKeys: Key[]) {
-        for (let key of keyboardKeys) {
-            this.keyboardKeys.set(key.keyName, key);
-        }
+    constructor() {
+        super();
         this.clearAllPresses();
         this.keyCapture = this.keyCapture.bind(this);
         this.listen = this.listen.bind(this);
         this.stopListening = this.stopListening.bind(this);
-    }
-
-    /**
-     * @param keyName
-     * @returns true if the KeyboardController is watching for keyName else false.
-     */
-    hasKey(keyName: string): boolean {
-        return this.keyboardKeys.has(keyName);
     }
 
     /**
@@ -33,11 +21,18 @@ export class KeyboardController {
      * with the new.
      * @param key
      */
-    addKey(key: Key) {
-        const keyName = key.keyName;
+    add(keyName: string, onKeyPress: Function[] = [], onKeyRelease: Function[] = []) {
         // Remove if already found and overwrite
-        this.removeKey(keyName);
-        this.keyboardKeys.set(keyName, key);
+        let key = this.remove(keyName);
+        if (key) {
+            key.clearOnKeyPress();
+            key.clearOnKeyRelease();
+        } else {
+            key = new Key(keyName);
+        }
+        key.addKeyPress(...onKeyPress);
+        key.addKeyRelease(...onKeyRelease)
+        this.set(keyName, key);
     }
 
     /**
@@ -46,12 +41,12 @@ export class KeyboardController {
      * @param keyName
      * @returns The Key object which was removed or null.
      */
-    removeKey(keyName: string): Key | null {
-        if (this.keyboardKeys.has(keyName)) {
+    remove(keyName: string): Key | null {
+        if (this.has(keyName)) {
             // Remove the old one and return it
             // Overwrite with new
-            const oldKey = this.keyboardKeys.get(keyName);
-            this.keyboardKeys.delete(keyName);
+            const oldKey = this.get(keyName);
+            this.delete(keyName);
             return oldKey;
         }
         return null;
@@ -61,9 +56,9 @@ export class KeyboardController {
      * @param keyName
      * @returns The Key object associated to the keyName or null if not found.
      */
-    getKey(keyName: string): Key | null {
-        if (this.hasKey(keyName)) {
-            return this.keyboardKeys.get(keyName);
+    get(keyName: string): Key | null {
+        if (this.has(keyName)) {
+            return super.get(keyName);
         }
         return null;
     }
@@ -72,7 +67,7 @@ export class KeyboardController {
         keyEvent.preventDefault();
         keyEvent.stopImmediatePropagation();
         const keyName = keyEvent.key;
-        const keyObj = this.getKey(keyName);
+        const keyObj = this.get(keyName);
         if (keyObj) {
             if (keyEvent.type == 'keypress' || keyEvent.type == 'keydown') {
                 keyObj.setPressed(true);
@@ -87,7 +82,7 @@ export class KeyboardController {
      * @returns The list of defined Key objects.
      */
     getAllKeys(): Key[] {
-        return [...this.keyboardKeys.values()];
+        return [...this.values()];
     }
 
     /**
@@ -95,7 +90,7 @@ export class KeyboardController {
      */
     getPressedKeys(): Key[] {
         const pressed = [];
-        for (let key of this.keyboardKeys.values()) {
+        for (let key of this.values()) {
             if (key.isPressed()) {
                 pressed.push(key);
             }
@@ -119,20 +114,20 @@ export class KeyboardController {
      * Runs the onKeyRelease functions associated to each key
      */
     clearAllPresses() {
-        for (let key of this.keyboardKeys.values()) {
+        for (let key of this.values()) {
             key.setPressed(false);
         }
     }
 
     lockKey(keyName: string) {
-        const key = this.getKey(keyName);
+        const key = this.get(keyName);
         if (key) {
             key.setLocked(true);
         }
     }
 
     unlockKey(keyName: string) {
-        const key = this.getKey(keyName);
+        const key = this.get(keyName);
         if (key) {
             key.setLocked(false);
         }
@@ -140,7 +135,7 @@ export class KeyboardController {
 
     getLockedKeys(): Key[] {
         const keys = [];
-        for (let key of this.keyboardKeys.values()) {
+        for (let key of this.values()) {
             if (key.isLocked()) {
                 keys.push(key);
             }

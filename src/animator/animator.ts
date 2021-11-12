@@ -119,11 +119,11 @@ export default class Animator {
 	}
 
 	noContextMenu() {
-		this.canvasEl.oncontextmenu = () => {return false};
+		this.canvasEl.oncontextmenu = () => { return false };
 	}
 
 	contextMenu() {
-		this.canvasEl.oncontextmenu = () => {return true};
+		this.canvasEl.oncontextmenu = () => { return true };
 	}
 
 	gameBounds() {

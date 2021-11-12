@@ -7,7 +7,8 @@ export class TextBox extends GameObject {
 	fontSize: string;
 	fontFamily: string;
 	color: string;
-	baseLine: CanvasTextBaseline;
+	align: CanvasTextAlign;
+	baseline: CanvasTextBaseline;
 	fill: boolean = true;
 
 	constructor(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, updateSpeed: number,
@@ -18,20 +19,22 @@ export class TextBox extends GameObject {
 		this.text = text;
 		this.fontSize = fontSize;
 		this.fontFamily = fontFamily;
-		this.baseLine = "top";
+		this.align = 'start'
+		this.baseline = 'alphabetic';
 	}
 
 	draw() {
 		this.ctx.beginPath();
 		this.ctx.font = `${this.fontSize} ${this.fontFamily}`;
-		this.ctx.textBaseline = this.baseLine;
-		const metrics = this.ctx.measureText(this.text);
+		this.ctx.textBaseline = this.baseline;
+		this.ctx.textAlign = this.align;
+		// const metrics = this.ctx.measureText(this.text);
 		if (this.fill) {
 			this.ctx.fillStyle = this.color;
-			this.ctx.fillText(this.text, this.location.x, this.location.y, metrics.width)
+			this.ctx.fillText(this.text, this.location.x, this.location.y)
 		} else {
 			this.ctx.strokeStyle = this.color
-			this.ctx.strokeText(this.text, this.location.x, this.location.y, metrics.width)
+			this.ctx.strokeText(this.text, this.location.x, this.location.y)
 		}
 	}
 }
@@ -45,7 +48,22 @@ export class TextBoxGroup {
 	constructor(ctx: CanvasRenderingContext2D, textBoxes: TextBox[] = []) {
 		this.ctx = ctx;
 		this.textBoxes = textBoxes;
-		this.length = this.textBoxes.length;
+	}
+
+	setBaseline(baseline: CanvasTextBaseline) {
+		for (let tb of this.textBoxes) {
+			tb.baseline = baseline;
+		}
+	}
+
+	setAlign(align: CanvasTextAlign) {
+		for (let tb of this.textBoxes) {
+			tb.align = align;
+		}
+	}
+
+	addTextBox(textBox: TextBox) {
+		this.textBoxes.push(textBox);
 	}
 
 	draw() {
@@ -61,7 +79,7 @@ export class SelectTextBoxGroup extends TextBoxGroup {
 	originalColors: string[] = [];
 	selectedColor: string;
 
-	constructor(ctx: CanvasRenderingContext2D, selectedColor: string, textBoxes: TextBox[]) {
+	constructor(ctx: CanvasRenderingContext2D, selectedColor: string, textBoxes: TextBox[] = []) {
 		super(ctx);
 		this.ctx = ctx;
 		this.selectedColor = selectedColor;
@@ -80,12 +98,12 @@ export class SelectTextBoxGroup extends TextBoxGroup {
 		this.cursor -= 1;
 	}
 
-	
-	public get cursor() : number {
+
+	public get cursor(): number {
 		return this._cursor;
 	}
-	
-	public set cursor(cursor : number) {
+
+	public set cursor(cursor: number) {
 		if (cursor >= this.textBoxes.length) {
 			this._cursor = 0;
 		} else if (cursor < 0) {

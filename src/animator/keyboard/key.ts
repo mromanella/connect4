@@ -5,6 +5,7 @@ export default class Key {
     private onKeyRelease: Function[] = [];
     private pressed: boolean = false;
     private locked: boolean = false;
+
     constructor(keyName: string, onKeyPress: Function[] = [], onKeyRelease: Function[] = []) {
         this.keyName = keyName;
         this.onKeyPress = onKeyPress;
@@ -23,12 +24,20 @@ export default class Key {
         }
     }
 
-    addKeyPress(func: Function) {
-        this.onKeyPress.push(func);
+    clearOnKeyPress() {
+        this.onKeyPress = [];
     }
 
-    addKeyRelease(func: Function) {
-        this.onKeyRelease.push(func);
+    clearOnKeyRelease() {
+        this.onKeyRelease = [];
+    }
+
+    addKeyPress(...funcs: Function[]) {
+        this.onKeyPress.push(...funcs);
+    }
+
+    addKeyRelease(...funcs: Function[]) {
+        this.onKeyRelease.push(...funcs);
     }
 
     run() {

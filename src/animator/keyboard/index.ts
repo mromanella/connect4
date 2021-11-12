@@ -18,12 +18,9 @@ export function unlockKeys(keys: Key[]) {
     }
 }
 
-export function getKeyboardController(keys: Key[] = []): KeyboardController {
+export function getKeyboardController(): KeyboardController {
     if (!controller) {
-        controller = new KeyboardController([]);
-    }
-    for (let key of keys) {
-        controller.addKey(key);
+        controller = new KeyboardController();
     }
     return controller;
 }

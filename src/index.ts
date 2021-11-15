@@ -1,23 +1,23 @@
-import Animator from "./animator/animator";
-import { getEventController } from "./animator/events";
-import { getSoundController } from "./animator/sounds";
-import { PLAY_CLICKED } from "./constants";
-import { MainMenu } from "./main-menu";
+import * as Phaser from 'phaser';
 
-const animator = new Animator('#game', 30);
-const mainMenu = new MainMenu(animator);
-// const singleplayer = new
+const config = {
+    type: Phaser.AUTO,
+    width: 800,
+    height: 600,
+    scene: {
+        preload: preload,
+        create: create,
+        update: update
+    }
+};
 
-const eventController = getEventController();
-const soundController = getSoundController();
+const game = new Phaser.Game(config);
 
-eventController.register(PLAY_CLICKED, () => {
-    mainMenu.stop();
+function preload() {
+}
 
-})
+function create() {
+}
 
-animator.setCallback(() => {
-    mainMenu.draw();
-})
-
-mainMenu.start();
+function update() {
+}

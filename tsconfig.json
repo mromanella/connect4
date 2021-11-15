@@ -3,11 +3,14 @@
     "compilerOptions": {
         "sourceMap": true,
         "module": "es6",
+        "moduleResolution": "node",
         "outDir": "./dist/",
         "noImplicitAny": true,
         "target": "es2017",
         "allowJs": true,
-        "types": [],
+        "typeRoots": [
+            "./node_modules/phaser/types"
+        ]
     },
     "include": [
         "./src/**/*"
